@@ -1,0 +1,3 @@
+/mnt/c/Users/Trenton Rochelle/Coding/Summer2019/PQC_DownloadManager/curlHttp/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/Trenton Rochelle/Coding/Summer2019/PQC_DownloadManager/curlHttp/build/CMakeFiles/curlexample.dir
+/mnt/c/Users/Trenton Rochelle/Coding/Summer2019/PQC_DownloadManager/curlHttp/build/CMakeFiles/edit_cache.dir
