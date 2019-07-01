@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/curlexample.dir/src/main.cpp.o CMakeFiles/curlexample.dir/HttpDownloader.cpp.o  -o curlexample -lcurl 

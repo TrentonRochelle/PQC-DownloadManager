@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/Trenton Rochelle/Coding/Summer2019/PQC_DownloadManager/10-at-a-time/src/10-at-a-time.cpp
+errno.h
+-
+stdlib.h
+-
+string.h
+-
+unistd.h
+-
+curl/curl.h
+-
+iostream
+-
+sstream
+-
+functional
+-
+memory
+-
+iosfwd
+-
+fstream
+-
+map
+-
+algorithm
+-
+cstdio
+-
+sys/stat.h
+-
+
