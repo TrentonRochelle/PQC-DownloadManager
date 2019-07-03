@@ -40,6 +40,7 @@ server: $(OBJS) $(CLIENT_OBJ)
 clean:
 	rm -f client.o
 	rm -f server.o
+	rm -f AKE.o
 
 cleanall:
 	rm -f *.o

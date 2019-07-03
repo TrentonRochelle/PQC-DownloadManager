@@ -610,11 +610,10 @@ void AKE_MR(float speed[17], long long cycles[17]){
 				cb_h2 = c2-c1;
 				tb_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
-			
 			c_Auth = Auth_b;
 			c_Auth.append(conv<vec_ZZ>(c_b));
 
-			
+			// cout << "c_Auth: " << c_Auth << "\n\n";
 			
 				t1 = clock();
 				c1 = cpucycles();
@@ -666,8 +665,12 @@ void AKE_MR(float speed[17], long long cycles[17]){
 				t2 = clock();
 				ca_ds_ver = c2-c1;
 				ta_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+
 			c_Auth = m1_b;
 			c_Auth.append(m2_b);
+
+			cout << "length: " << m1_b.length() << "\n\n";
+
 
 			ZZX k_a;
 			

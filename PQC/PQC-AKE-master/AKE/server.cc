@@ -112,7 +112,7 @@ ZZX stringToZZX(string serialArray){
  */
 static json sigmaTwoJson(ZZX s_b[2], vec_ZZ m2_b){
 	json j;
-	j["STATE"] = "SIGMA1";
+	j["STATE"] = "SIGMA2";
 	std::stringstream temp;
 
 	temp << s_b[0];
@@ -230,7 +230,7 @@ int main(int argc, char* argv[]){
 
 				else if(state=="SIGMA1"){
 					//deserializing the json
-					cout << "SIGMA1" << "\n";
+					cout << "SIGMA1\n";
 					string Kv_a_str, m2_a_str, s_a_0_str, s_a_1_str;
 					Kv_a_str = jsonReceive.value("Kv_a", "NULL"); //should have been gotten beforehand...
 					m2_a_str = jsonReceive.value("m2_a", "NULL");
@@ -300,7 +300,7 @@ int main(int argc, char* argv[]){
 						c_Auth = Auth_b;
 						c_Auth.append(conv<vec_ZZ>(c_b));
 
-						
+						cout << "c_b: " << c_b << "\n\n";						
 						
 							t1 = clock();
 							c1 = cpucycles();
@@ -342,7 +342,9 @@ int main(int argc, char* argv[]){
 
 					jsonSend = sigmaTwoJson(s_b,m2_b);
 					jDump = jsonSend.dump(); //serialize the json
-					send(sockfd,jDump.c_str(),jDump.length()+1,0);
+					cout << "SENDING SIGMA2\n";
+					send(newf,jDump.c_str(),jDump.length()+1,0);
+					delete MSKD_b; MSKD_b = NULL;
 
 				}
 

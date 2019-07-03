@@ -226,12 +226,12 @@ int main(int argc, char* argv[])	{
 			// cout << "received nothing?\n";
 			continue;
 		}
-		cout<<"Server Message : "<<receive<<endl;
+		cout<<"Server Message : ";
 		jsonReceive = json::parse(receive);
 		state = jsonReceive.value("STATE", "NULL");
 		
 		if(state=="CONNECT"){
-
+			cout << "CONNECT\n";
 			Kv_b = conv<ZZ_pX>(stringToZZX(jsonReceive.value("Kv_b", "NULL")));
 			jsonSend = sigmaOneJson(Kv_a, m2_a, s_a); //Kv_a should be gotten beforehand...
 			jDump = jsonSend.dump(); //serialize the json
@@ -240,7 +240,102 @@ int main(int argc, char* argv[])	{
 
 		}
 		else if(state=="SIGMA2"){
+			cout << "SIGMA2\n";
 
+			string m2_b_str, s_b_0_str, s_b_1_str;
+			m2_b_str = jsonReceive.value("m2_b", "NULL");
+			s_b_0_str = jsonReceive.value("s_b[0]", "NULL");
+			s_b_1_str = jsonReceive.value("s_b[1]", "NULL");
+
+			vec_ZZ m2_b;
+			ZZX s_b[2];
+
+			ZZX zzx_temp;
+
+			zzx_temp = stringToZZX(m2_b_str);
+			m2_b = conv<vec_ZZ>(zzx_temp);
+
+			zzx_temp = stringToZZX(s_b_0_str);
+			s_b[0] = conv<ZZX>(zzx_temp);
+			zzx_temp = stringToZZX(s_b_1_str);
+			s_b[1] = conv<ZZX>(zzx_temp);
+
+			ZZX c_b;
+			c_b.SetLength(N0);
+			
+			//Alice
+			vec_ZZ c_Auth;
+			
+			t1 = clock();
+			c1 = cpucycles();
+
+			vec_ZZ m1_b;
+			if ( Verify2(conv<ZZX>(Kv_b),s_b,m2_b,m1_b) ){
+					c2 = cpucycles();
+					t2 = clock();
+					ca_ds_ver = c2-c1;
+					ta_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+				c_Auth = m1_b; //last 512 values are c_b
+				c_Auth.append(m2_b);
+
+			int length = m1_b.length(); //544
+
+			for(int i=0;i<N0;i++){//0-511
+				c_b[i] = m1_b[i+length-N0];
+			}
+			vec_ZZ Auth_b;
+			Auth_b.SetLength(32);
+			for(int i=0;i<32;i++){
+				Auth_b[i] = m1_b[i];
+			}
+
+				ZZX k_a;
+				
+					t1 = clock();
+					c1 = cpucycles();
+				Decapsulate(Kd_a,c_b,k_a, Kd_inv2_a);
+					c2 = cpucycles();
+					t2 = clock();
+					ca_kem_dec = c2-c1;
+					ta_kem_dec = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+
+				vec_ZZ Auth_a;
+				
+					t1 = clock();
+					c1 = cpucycles();
+				Hash2(Auth_a, Ke_a, conv<vec_ZZ>(c_b), conv<vec_ZZ>(k_a));
+					c2 = cpucycles();
+					t2 = clock();
+					ca_h2 = c2-c1;
+					ta_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+
+				if (IsZero(Auth_a - Auth_b)){
+
+						t1 = clock();
+						c1 = cpucycles();
+					Hash1(sk_a, Ke_a, c_Auth, conv<vec_ZZ>(k_b));
+						c2 = cpucycles();
+						t2 = clock();
+						ca_h1 = c2-c1;
+						ta_h1 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+
+					//cout <<"SK_a = "<<sk_a <<"\n";
+
+				}
+				else{cout << "Alice: Abort! (H2 Hashes Didn't Match!)"; return; }
+				
+
+			}
+			else{ cout << "Alice: Abort!"; return; }	
+
+
+			//CHECK IF EVERYTHING WORKED!
+			if (IsZero(sk_a - sk_b)){
+				cout << "\nsk_a == sk_b; Successful AKE!\n";
+			}
+
+			// Only you can prevent memory leaks!
+			delete MSKD_a; MSKD_a = NULL;
 			continue;
 		}
 		else if(state=="NULL"){
