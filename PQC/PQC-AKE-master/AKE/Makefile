@@ -3,7 +3,7 @@ CC=g++
 AR=ar
 
 # Case 1: These are the standard compilation flags CCFLAGS and linker flags LDFLAGS.
-CCFLAGS= -Wall -std=gnu++0x -Ofast -mavx2 -mavx -mpclmul
+CCFLAGS= -std=gnu++0x -Ofast -mavx2 -mavx -mpclmul
 LDFLAGS= -lntl -lgmp -lcrypto
 
 # Case 2: If NTL is installed in a specific location, say /path/to/ntl, you must specify it by using the CCFLAGS and LDFLAGS below instead.
@@ -13,21 +13,35 @@ LDFLAGS= -lntl -lgmp -lcrypto
 # Case 3: In some cases, Unix doesn't find NTL even if it is installed in the standard location /usr/local. Then, uncomment the following lines.
 # CCFLAGS= -Wall -I/usr/local/include/ -std=gnu++0x -Ofast 
 # LDFLAGS= -L/usr/local/lib/ -lntl -lgmp 
-
-SRCS=$(wildcard *.cc)
+AKE_SRC := AKE.cc
+CLIENT_SRC := client.cc
+SERVER_SRC := server.cc
+SRCS=$(filter-out $(AKE_SRC) $(CLIENT_SRC) $(SERVER_SRC),$(wildcard *.cc))
 OBJS=$(SRCS:.cc=.o)
-
+AKE_OBJ=$(AKE_SRC:.cc=.o)
+CLIENT_OBJ=$(CLIENT_SRC:.cc=.o)
+SERVER_OBJ=$(SERVER_SRC:.cc=.o)
 .PHONY: all clean mrproper
 
-all: AKE
+all: client server
 
-AKE: $(OBJS)
-	$(CC) $(CCFLAGS) -o AKE $(OBJS) $(LDFLAGS)
+AKE: $(OBJS) $(AKE_OBJ)
+	$(CC) $(CCFLAGS) AKE.cc -o AKE $(OBJS) $(LDFLAGS)
+
+client: $(OBJS) $(SERVER_OBJ)
+	$(CC) $(CCFLAGS) client.cc -o client $(OBJS) $(LDFLAGS)
+
+server: $(OBJS) $(CLIENT_OBJ)
+	$(CC) $(CCFLAGS) server.cc -o server $(OBJS) $(LDFLAGS)
 
 %.o: %.cc params.h
 	$(CC) $(CCFLAGS) -c $< 
 
 clean:
+	rm -f client.o
+	rm -f server.o
+
+cleanall:
 	rm -f *.o
 
 mrproper:

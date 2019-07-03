@@ -79,7 +79,7 @@ void Hash1(vec_ZZ& sk, vec_ZZ Ke,vec_ZZ c_Auth, vec_ZZ k){
     }
 }
 
-
+/* #region */
 void AKE_timed_example(){
 
 	clock_t t1,t2;
@@ -485,6 +485,8 @@ void AKE_timed_exampleMR(){
 		cout << " TOTAL (AKE) :"<< tb_ds_ver + tb_kem_enc + tb_h2 + tb_ds_sig + tb_h1 << "\n";
 
 }
+/* #endregion */
+
 
 // Main AKE algorithm
 void AKE_MR(float speed[17], long long cycles[17]){

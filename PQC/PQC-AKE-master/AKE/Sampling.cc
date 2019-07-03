@@ -200,11 +200,13 @@ signed int Sample4(RR_t c, RR_t sigma)
     {
         x = Sample3(sigma);
         x += (coin&1);
-        if(abs(x)>8){cout << x << endl;}
+        // if(abs(x)>8){cout << x << endl;}
         coin >>= 1;
         borne = exp(-(x-fracc)*(x-fracc)*denom)/ ( exp(-x*x*denom) + exp(-(x-1)*(x-1)*denom) );
 
-        assert(borne<1);
+        if(!(borne<1)){
+            continue;
+        }
         alea = ( (RR_t)rand() ) / LDRMX;
         if(alea<borne)
         {

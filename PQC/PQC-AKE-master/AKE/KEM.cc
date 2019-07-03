@@ -110,7 +110,7 @@ void KEMKeyGen(ZZX& Kd, ZZX& Ke, ZZX& Kd_inv2){
     Ke = (f*g_inv)%phi;
     //cout << "!"<<Ke<<"!";
     modCoeffs(Ke,q1);
-    cout<<"Retries: "<<gretries<<endl;
+    // cout<<"Retries: "<<gretries<<endl;
     return;
 }
 

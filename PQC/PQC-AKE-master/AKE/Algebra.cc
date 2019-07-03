@@ -425,7 +425,7 @@ void GenerateBasis(ZZX& f, ZZX& g, ZZX& F, ZZX& G, const ZZ& Norme)
         GS_Norm(f, g, flag);
         ValidPair(PGCD, Alpha, Beta, rho_f, rho_g, f, g);
     }
-    cout<<"Test1"<<endl;
+    // cout<<"Test1"<<endl;
     F = -q1*Beta*rho_g;
     G = q1*Alpha*rho_f;
 
@@ -451,7 +451,7 @@ void GenerateBasis(ZZX& f, ZZX& g, ZZX& F, ZZX& G, const ZZ& Norme)
         k = ReductionCoefficient(f, g, F, G, mb);
         k.normalize();
     }
-    cout<<"TEST2"<<endl;
+    // cout<<"TEST2"<<endl;
 
     aux = FastMod(f*G - g*F);
 
