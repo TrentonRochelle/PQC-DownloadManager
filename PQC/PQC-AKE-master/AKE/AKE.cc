@@ -509,6 +509,7 @@ void AKE_MR(float speed[17], long long cycles[17]){
 			t1 = clock();
 			c1 = cpucycles();
 		SigKeyGen(Ks_a,Kv_a,MSKD_a);														//ALICE: sk(1) <- BOT
+		cout << "Kv_a: " << Kv_a; return;
 			c2 = cpucycles();
 			t2 = clock();
 			ca_ds_keygen = c2-c1;
@@ -715,6 +716,9 @@ void AKE_MR(float speed[17], long long cycles[17]){
 		//CHECK IF EVERYTHING WORKED!
 		if (IsZero(sk_a - sk_b)){
 			cout << "\nsk_a == sk_b; Successful AKE!\n";
+			cout << "sk_a: " << sk_a << "\n\n";
+			cout << "sk_b: " << sk_b << "\n\n";
+			return;
 		}
 
 		// Only you can prevent memory leaks!

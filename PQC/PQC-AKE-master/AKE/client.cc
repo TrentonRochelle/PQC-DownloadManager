@@ -139,7 +139,7 @@ static json sigmaOneJson(ZZ_pX Kv_a, vec_ZZ m2_a, ZZX s_a[2]){ //Kv_a should be 
 }
 
 int main(int argc, char* argv[])	{
-
+	srand(rdtsc());
 	//PQC SETUP
 	clock_t t1,t2;
 	float ta_ds_keygen, ta_kem_keygen, ta_ds_sig, ta_ds_ver, ta_kem_dec, ta_h2, ta_h1, ta_total1, ta_total2;
@@ -235,6 +235,7 @@ int main(int argc, char* argv[])	{
 			Kv_b = conv<ZZ_pX>(stringToZZX(jsonReceive.value("Kv_b", "NULL")));
 			jsonSend = sigmaOneJson(Kv_a, m2_a, s_a); //Kv_a should be gotten beforehand...
 			jDump = jsonSend.dump(); //serialize the json
+			cout << "SENDING SIGMA1\n";
 			send(sockfd,jDump.c_str(),jDump.length()+1,0);
 			continue;
 
@@ -266,15 +267,15 @@ int main(int argc, char* argv[])	{
 			//Alice
 			vec_ZZ c_Auth;
 			
-			t1 = clock();
-			c1 = cpucycles();
+			// t1 = clock();
+			// c1 = cpucycles();
 
 			vec_ZZ m1_b;
 			if ( Verify2(conv<ZZX>(Kv_b),s_b,m2_b,m1_b) ){
-					c2 = cpucycles();
-					t2 = clock();
-					ca_ds_ver = c2-c1;
-					ta_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+					// c2 = cpucycles();
+					// t2 = clock();
+					// ca_ds_ver = c2-c1;
+					// ta_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 				c_Auth = m1_b; //last 512 values are c_b
 				c_Auth.append(m2_b);
 
@@ -291,51 +292,59 @@ int main(int argc, char* argv[])	{
 
 				ZZX k_a;
 				
-					t1 = clock();
-					c1 = cpucycles();
+					// t1 = clock();
+					// c1 = cpucycles();
 				Decapsulate(Kd_a,c_b,k_a, Kd_inv2_a);
-					c2 = cpucycles();
-					t2 = clock();
-					ca_kem_dec = c2-c1;
-					ta_kem_dec = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+					// c2 = cpucycles();
+					// t2 = clock();
+					// ca_kem_dec = c2-c1;
+					// ta_kem_dec = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 				vec_ZZ Auth_a;
 				
-					t1 = clock();
-					c1 = cpucycles();
+					// t1 = clock();
+					// c1 = cpucycles();
 				Hash2(Auth_a, Ke_a, conv<vec_ZZ>(c_b), conv<vec_ZZ>(k_a));
-					c2 = cpucycles();
-					t2 = clock();
-					ca_h2 = c2-c1;
-					ta_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+					// c2 = cpucycles();
+					// t2 = clock();
+					// ca_h2 = c2-c1;
+					// ta_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 				if (IsZero(Auth_a - Auth_b)){
 
-						t1 = clock();
-						c1 = cpucycles();
-					Hash1(sk_a, Ke_a, c_Auth, conv<vec_ZZ>(k_b));
-						c2 = cpucycles();
-						t2 = clock();
-						ca_h1 = c2-c1;
-						ta_h1 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+						// t1 = clock();
+						// c1 = cpucycles();
+					// Hash1(sk_a, Ke_a, c_Auth, conv<vec_ZZ>(k_b));
+					Hash1(sk_a, Ke_a, c_Auth, conv<vec_ZZ>(k_a)); //I think it should be k_a according to the PDF. This code is off the goop
+						// c2 = cpucycles();
+						// t2 = clock();
+						// ca_h1 = c2-c1;
+						// ta_h1 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 					//cout <<"SK_a = "<<sk_a <<"\n";
 
 				}
-				else{cout << "Alice: Abort! (H2 Hashes Didn't Match!)"; return; }
+				else{cout << "Alice: Abort! (H2 Hashes Didn't Match!)"; }
 				
 
 			}
-			else{ cout << "Alice: Abort!"; return; }	
+			else{ cout << "Alice: Abort!";}	
 
 
 			//CHECK IF EVERYTHING WORKED!
-			if (IsZero(sk_a - sk_b)){
-				cout << "\nsk_a == sk_b; Successful AKE!\n";
-			}
+			cout << "sk_a:" << sk_a << "\n";
+			// if (IsZero(sk_a - sk_b)){
+			// 	cout << "\nsk_a == sk_b; Successful AKE!\n";
+			// }
 
 			// Only you can prevent memory leaks!
 			delete MSKD_a; MSKD_a = NULL;
+			jsonSend.clear();
+			jsonSend["STATE"] = "DATA";
+			jsonSend["DATA"] = "TEST NO ENCRYPTION";
+			jDump = jsonSend.dump(); //serialize the json
+			cout << "SENDING DATA\n";
+			send(sockfd,jDump.c_str(),jDump.length()+1,0);
 			continue;
 		}
 		else if(state=="NULL"){

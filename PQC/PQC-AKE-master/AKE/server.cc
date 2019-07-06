@@ -135,7 +135,7 @@ static json sigmaTwoJson(ZZX s_b[2], vec_ZZ m2_b){
 
 
 int main(int argc, char* argv[]){
-
+	srand(rdtsc());
 	clock_t t1,t2;
 	float tb_ds_keygen, tb_ds_ver, tb_kem_enc, tb_h2, tb_ds_sig, tb_h1, tb_total1, tb_total2;
 	unsigned long long c1,c2;
@@ -268,62 +268,62 @@ int main(int argc, char* argv[]){
 					vec_ZZ m1_a;
 					vec_ZZ m2_b;
 					//cout << Kv_a;
-						t1 = clock();
-						c1 = cpucycles();
+						// t1 = clock();
+						// c1 = cpucycles();
 					//TODO
 					if ( Verify2(conv<ZZX>(Kv_a),s_a,m2_a,m1_a) ){										//BOB: if (Ver(Kv1,simga1) != BOT) Then
-							c2 = cpucycles();
-							t2 = clock();
-							cb_ds_ver = c2-c1;
-							tb_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+							// c2 = cpucycles();
+							// t2 = clock();
+							// cb_ds_ver = c2-c1;
+							// tb_ds_ver = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 						Ke_a = m1_a;
 						Ke_a.append(m2_a);
 						Ke_a_temp = conv<ZZX>(Ke_a);
 
-							t1 = clock();
-							c1 = cpucycles();
+							// t1 = clock();
+							// c1 = cpucycles();
 						Encapsulate(Ke_a_temp,c_b,k_b);													//BOB: (c,k) <- Enc(Ke)
-							c2 = cpucycles();
-							t2 = clock();
-							cb_kem_enc = c2-c1;
-							tb_kem_enc = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+							// c2 = cpucycles();
+							// t2 = clock();
+							// cb_kem_enc = c2-c1;
+							// tb_kem_enc = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
-							t1 = clock();
-							c1 = cpucycles();
+							// t1 = clock();
+							// c1 = cpucycles();
 						Hash2(Auth_b, Ke_a, conv<vec_ZZ>(c_b), conv<vec_ZZ>(k_b));						//BOB: Auth  <- H2(sigma1,c,k)
-							c2 = cpucycles();
-							t2 = clock();
-							cb_h2 = c2-c1;
-							tb_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+							// c2 = cpucycles();
+							// t2 = clock();
+							// cb_h2 = c2-c1;
+							// tb_h2 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 						
 						c_Auth = Auth_b;
 						c_Auth.append(conv<vec_ZZ>(c_b));
 
-						cout << "c_b: " << c_b << "\n\n";						
+						// cout << "c_b: " << c_b << "\n\n";						
 						
-							t1 = clock();
-							c1 = cpucycles();
+							// t1 = clock();
+							// c1 = cpucycles();
 						//TODO
 						Sign2(s_b, m2_b,c_Auth, MSKD_b);	//Ks_a == MSKD_a which contains f,g 													//BOB: Sigma2 <- Sig(Ks2,(c,k))
 														//s1 => renamed as s2 will be inside s_a[1]
 
 
-							c2 = cpucycles();
-							t2 = clock();
-							cb_ds_sig = c2-c1;
-							tb_ds_sig = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+							// c2 = cpucycles();
+							// t2 = clock();
+							// cb_ds_sig = c2-c1;
+							// tb_ds_sig = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
-							t1 = clock();
-							c1 = cpucycles();
+							// t1 = clock();
+							// c1 = cpucycles();
 						Hash1(sk_b, Ke_a, c_Auth, conv<vec_ZZ>(k_b));
-							c2 = cpucycles();
-							t2 = clock();
-							cb_h1 = c2-c1;
-							tb_h1 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+							// c2 = cpucycles();
+							// t2 = clock();
+							// cb_h1 = c2-c1;
+							// tb_h1 = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 						
-						// cout <<"SK_b = "<<sk_b <<"\n";
+						// cout <<"sk_b length: "<<sk_b.length() <<"\n";
 					}
 					else{ cout << "Bob: Abort!\n"; }
 
@@ -346,6 +346,11 @@ int main(int argc, char* argv[]){
 					send(newf,jDump.c_str(),jDump.length()+1,0);
 					delete MSKD_b; MSKD_b = NULL;
 
+				}
+				else if(state=="DATA"){
+					cout << "DATA: ";
+					cout << jsonReceive.value("DATA", "NULL") << "\n";
+					continue;
 				}
 
 				memset(receive, 0, sizeof receive);
