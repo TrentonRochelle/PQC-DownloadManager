@@ -1,37 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "helpers.cc"
 
-#include <assert.h>
-#include <math.h>
-#include <complex.h>
-#include <time.h>
-#include <NTL/ZZ.h>
-#include <NTL/ZZX.h>
-#include <NTL/mat_ZZ.h>
-#include <gmp.h>
-
-#include "params.h"
-#include "FFT.h"
-#include "Sampling.h"
-#include "Random.h"
-#include "Algebra.h"
-#include "DigitalSignature.h"
-#include "KEM.h"
-#include "cpucycles.h"
-
-#include <openssl/sha.h>
-#include "huffman.h"
-#include "json.hpp"
 
 #define BACKLOG 10
 using namespace std;
@@ -42,96 +10,7 @@ int retries = 0;
 #define bufSize 1024*32
 //SERVER IS BOB
 
-void Hash2(vec_ZZ& Auth, vec_ZZ Ke,vec_ZZ c,vec_ZZ k){
-    SHA256_CTX ctx;
-    unsigned char digest[SHA256_DIGEST_LENGTH];
-    SHA256_Init(&ctx);
 
-    //vec_ZZ msg = RandomVector();
-    Auth.SetLength(32);
-    for(int i = 0; i < N0; i++) {
-        char f = (conv<int>(Ke[i]+c[i]+k[i])%255);
-        SHA256_Update(&ctx, &f, 1);
-    }
-    SHA256_Final(digest, &ctx);
-
-    for(int i=0; i < 32 and i < N0; i++){
-        //cout << int(digest[i]) << " ";
-        Auth[i] = conv<ZZ>(digest[i])%q0;
-    }
-
-}
-
-
-void Hash1(vec_ZZ& sk, vec_ZZ Ke,vec_ZZ c_Auth, vec_ZZ k){
-    SHA256_CTX ctx;
-    unsigned char digest[SHA256_DIGEST_LENGTH];
-    SHA256_Init(&ctx);
-    SHA256_Update(&ctx, "K", 1);
-
-    //vec_ZZ msg = RandomVector();
-    sk.SetLength(32);
-    for(int i = 0; i < N0; i++) {
-        char f = (conv<int>(Ke[i]+c_Auth[i]+k[i])%255);
-        SHA256_Update(&ctx, &f, 1);
-    }
-    SHA256_Final(digest, &ctx);
-
-    for(int i=0; i < 32 and i < N0; i++){
-        //cout << int(digest[i]) << " ";
-        sk[i] = conv<ZZ>(digest[i])%q0;
-    }
-}
-/**
- * Deserializes string and returns a ZZX
- * @param string serialArray has format "[12 535 7542 213 ...]"
- * @return ZZX
- */
-ZZX stringToZZX(string serialArray){
-	serialArray.erase(0,1);
-	serialArray.erase(serialArray.size()-1);
-	// cout << "\nstring: " << serialArray;
-	size_t num = std::count(serialArray.begin(), serialArray.end(), ' ');
-	ZZX zzx;
-	zzx.SetLength(num+1);
-	stringstream stream(serialArray);
-	int n;
-	int count = 0;
-	while(stream >> n){
-		zzx[count]=n;
-		count++;
-	}
-	return zzx;
-}
-
-
-/**
- * Takes in NTL objects and puts them into a json for sigma2 message
- * @param Bob s1,s2 array, Bob m2
- * @return a json for sigma2
- */
-static json sigmaTwoJson(ZZX s_b[2], vec_ZZ m2_b){
-	json j;
-	j["STATE"] = "SIGMA2";
-	std::stringstream temp;
-
-	temp << s_b[0];
-	j["s_b[0]"] = temp.str();
-
-	temp.str(std::string()); //clear the stringstream
-	temp.clear();
-
-	temp << s_b[1];
-	j["s_b[1]"] = temp.str();
-
-	temp.str(std::string()); //clear the stringstream
-	temp.clear();
-
-	temp << m2_b;
-	j["m2_b"] = temp.str();
-
-	return j;
-}
 
 
 int main(int argc, char* argv[]){
@@ -148,13 +27,13 @@ int main(int argc, char* argv[]){
 
 	MSK_Data * MSKD_b = new MSK_Data;													//Bob:   (Ks2,Ks2) <- SigKeyGen
 
-	t1 = clock();
-	c1 = cpucycles();
+	// t1 = clock();
+	// c1 = cpucycles();
 	SigKeyGen(Ks_b,Kv_b,MSKD_b);														//BOB:   sk(2) <- BOT
-	c2 = cpucycles();	
-	t2 = clock();
-	cb_ds_keygen = c2-c1;
-	tb_ds_keygen = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
+	// c2 = cpucycles();	
+	// t2 = clock();
+	// cb_ds_keygen = c2-c1;
+	// tb_ds_keygen = ((float)t2 - (float)t1)/CLOCKS_PER_SEC * 1000;
 
 	sockaddr_in my_addr;
 	int sockfd,x;
@@ -180,6 +59,10 @@ int main(int argc, char* argv[]){
 
 	int pid,newf,counter=0	;
 	char welcome[bufSize];
+
+	unsigned char keyArray[32];
+	bool skSet = false;
+	unsigned char ivArray[AES::BLOCKSIZE];
 
 	json j;
 	stringstream temp;
@@ -219,7 +102,14 @@ int main(int argc, char* argv[]){
 					continue;
 				}
 				cout<<"Message from "<<sockfd<<" and client"<<counter<<" : ";
-				jsonReceive = json::parse(receive);
+				if(skSet){
+					string receiveString(receive);
+					// cout << "\ncipher text: " << receiveString << "\n";
+					jsonReceive = json::parse(decrypt(*keyArray, receiveString, ivArray));
+				}
+				else{
+					jsonReceive = json::parse(receive);
+				}
 				state = jsonReceive.value("STATE", "NULL");
 				jsonSend.clear(); //empty the jsonSend
 
@@ -231,12 +121,25 @@ int main(int argc, char* argv[]){
 				else if(state=="SIGMA1"){
 					//deserializing the json
 					cout << "SIGMA1\n";
-					string Kv_a_str, m2_a_str, s_a_0_str, s_a_1_str;
+					string Kv_a_str, m2_a_str, s_a_0_str, s_a_1_str, ivString;
+					// unsigned char tempArray[AES::BLOCKSIZE];
 					Kv_a_str = jsonReceive.value("Kv_a", "NULL"); //should have been gotten beforehand...
 					m2_a_str = jsonReceive.value("m2_a", "NULL");
 					s_a_0_str = jsonReceive.value("s_a[0]", "NULL");
 					s_a_1_str = jsonReceive.value("s_a[1]", "NULL");
-
+					ivString = jsonReceive.value("IV","NULL");
+					size_t pos = 0;
+					string token;
+					string delimiter = ",";
+					int index=0;
+					int temp;
+					while ((pos = ivString.find(delimiter)) != string::npos) {
+						token = ivString.substr(0, pos);
+						sscanf(token.c_str(), "%d", &temp);
+						ivArray[index] = (unsigned char) temp;
+						ivString.erase(0, pos + delimiter.length());
+						index+=1;
+					}
 					vec_ZZ Ke_a;
 					ZZ_pX Kv_a;
 					vec_ZZ m2_a;
@@ -326,8 +229,13 @@ int main(int argc, char* argv[]){
 						// cout <<"sk_b length: "<<sk_b.length() <<"\n";
 					}
 					else{ cout << "Bob: Abort!\n"; }
-
-
+								int convInt;
+				for(int i=0;i<sk_b.length();i++){
+					convInt = conv<int>(sk_b[i]);
+					keyArray[i] = (unsigned char) convInt;
+					// sprintf(&hexChar[i*2], "%02X", temp);
+				}
+				skSet = true;
 				//Bob sends Sigma2 to Alice
 					// Aka. Alice has access to:
 					// c_Auth ] 

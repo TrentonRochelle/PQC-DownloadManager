@@ -3,8 +3,8 @@ CC=g++
 AR=ar
 
 # Case 1: These are the standard compilation flags CCFLAGS and linker flags LDFLAGS.
-CCFLAGS= -std=gnu++0x -Ofast -mavx2 -mavx -mpclmul
-LDFLAGS= -lntl -lgmp -lcrypto
+CCFLAGS= -std=gnu++0x -Ofast -mavx2 -mavx -mpclmul -I/usr/include/crypto++
+LDFLAGS= -lntl -lgmp -lcrypto -L/usr/lib/crypto++ -lcrypto++
 
 # Case 2: If NTL is installed in a specific location, say /path/to/ntl, you must specify it by using the CCFLAGS and LDFLAGS below instead.
 # CCFLAGS= -Wall -I/path/to/ntl/include/ -std=gnu++0x -Ofast 
@@ -16,7 +16,8 @@ LDFLAGS= -lntl -lgmp -lcrypto
 AKE_SRC := AKE.cc
 CLIENT_SRC := client.cc
 SERVER_SRC := server.cc
-SRCS=$(filter-out $(AKE_SRC) $(CLIENT_SRC) $(SERVER_SRC),$(wildcard *.cc))
+HELPER_SRC := helpers.cc
+SRCS=$(filter-out $(AKE_SRC) $(CLIENT_SRC) $(SERVER_SRC) $(HELPER_SRC),$(wildcard *.cc))
 OBJS=$(SRCS:.cc=.o)
 AKE_OBJ=$(AKE_SRC:.cc=.o)
 CLIENT_OBJ=$(CLIENT_SRC:.cc=.o)
