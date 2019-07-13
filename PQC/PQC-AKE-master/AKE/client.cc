@@ -111,7 +111,7 @@ int main(int argc, char* argv[])	{
 		cout<<"Server Message : ";
 		if(skSet){
 			string receiveString(receive);
-			jsonReceive = json::parse(decrypt(*keyArray, receiveString, ivArray));
+			jsonReceive = json::parse(decryptString(*keyArray, receiveString, ivArray));
 		}
 		else{
 			jsonReceive = json::parse(receive);
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])	{
 				CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
 				e.SetKeyWithIV( keyArray, 32 ,ivArray);
 				
-				cipher = encrypt(jDump, e);
+				cipher = encryptString(jDump, e);
 				
 			}
 			catch( CryptoPP::Exception& e )
@@ -268,11 +268,11 @@ int main(int argc, char* argv[])	{
 				cerr << e.what() << endl;
 				exit(1);
 			}
-			CryptoPP::StringSource( cipher, true,
-				new CryptoPP::HexEncoder(
-					new CryptoPP::StringSink( encoded )
-				) // HexEncoder
-			); 
+			// CryptoPP::StringSource( cipher, true,
+			// 	new CryptoPP::HexEncoder(
+			// 		new CryptoPP::StringSink( encoded )
+			// 	) // HexEncoder
+			// ); 
 			// cout << "encoded text: " << encoded << endl;
 			// cout << "cipher text: " << cipher << endl;
 			// cout << "decrypted: " << decrypt(*keyArray, cipher) << endl;

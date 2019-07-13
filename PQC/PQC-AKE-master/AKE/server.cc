@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
 				if(skSet){
 					string receiveString(receive);
 					// cout << "\ncipher text: " << receiveString << "\n";
-					jsonReceive = json::parse(decrypt(*keyArray, receiveString, ivArray));
+					jsonReceive = json::parse(decryptString(*keyArray, receiveString, ivArray));
 				}
 				else{
 					jsonReceive = json::parse(receive);

@@ -137,7 +137,7 @@ static json sigmaTwoJson(ZZX s_b[2], vec_ZZ m2_b){
 }
 
 
-string encrypt(string& plain, CBC_ENC &cipher)
+string encryptString(string& plain, CBC_ENC &cipher)
 {
     string c;
     try
@@ -157,7 +157,7 @@ string encrypt(string& plain, CBC_ENC &cipher)
    
 }
 
-string decrypt( unsigned char &key, string& cipher, unsigned char iv[AES::BLOCKSIZE])
+string decryptString( unsigned char &key, string& cipher, unsigned char iv[AES::BLOCKSIZE])
 {
     string recovered;
     try
