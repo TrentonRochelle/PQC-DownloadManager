@@ -9,7 +9,7 @@ int retries = 0;
 #define BACKLOG 10 // how many pending connections queue will hold
 #define bufSize 1024*32 //32kB
 //CLIENT IS ALICE
-
+//RUN as ./client alice 8080
 
 
 int main(int argc, char* argv[])	{

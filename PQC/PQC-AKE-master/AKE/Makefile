@@ -2,6 +2,9 @@ PREFIX=$(HOME)
 CC=g++
 AR=ar
 
+
+#Run as "make clean" and then "make all"
+
 # Case 1: These are the standard compilation flags CCFLAGS and linker flags LDFLAGS.
 CCFLAGS= -std=gnu++0x -Ofast -mavx2 -mavx -mpclmul -I/usr/include/crypto++
 LDFLAGS= -lntl -lgmp -lcrypto -L/usr/lib/crypto++ -lcrypto++

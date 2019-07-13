@@ -9,7 +9,7 @@ int retries = 0;
 
 #define bufSize 1024*32
 //SERVER IS BOB
-
+//Run as ./server 8080
 
 
 
